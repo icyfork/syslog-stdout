@@ -11,8 +11,8 @@ bufsiz=2048
 
 
 LOG_PRIMASK = 0x07
-PRIMASK = { 
-0 : "emerg", 
+PRIMASK = {
+0 : "emerg",
 1 : "alert",
 2 : "crit",
 3 : "err",
@@ -50,12 +50,12 @@ FACILITYMASK = {
 }
 
 def bit2string(number):
-    try: 
+    try:
         return "%s.%s"%(FACILITYMASK[number>>3] , PRIMASK[number & LOG_PRIMASK])
-    except: 
+    except:
         return "unknown.unknown"
 
-class SyslogListener(object):        
+class SyslogListener(object):
     def datagramReceived(self,data):
         """strip priority tag"""
         if data[2] == ">":
@@ -68,8 +68,8 @@ class SyslogListener(object):
             pri=None
             msg=data
         msg=msg.strip()
-        print "%s:%s"%(pri,msg)
-    
+        print "tag=msyslog.%s %s"%(pri,msg)
+
     def listen(self):
         try:
             os.remove('/dev/log')
@@ -79,7 +79,7 @@ class SyslogListener(object):
             sock = socket.socket( socket.AF_UNIX, socket.SOCK_DGRAM )
             sock.bind("/dev/log")
             self.sock=sock
-            
+
         except:
             print "Socket error: (%s) %s" % ( sys.exc_info()[1][0], sys.exc_info()[1][1] )
             sys.exit(1)
@@ -93,13 +93,13 @@ class SyslogListener(object):
                 return
             except socket.error:
                 pass
-            
+
     def shutdown(self):
         try:
             self.sock.close()
         except:
             pass
-        
+
         try:
             os.remove('/dev/log')
         except:
@@ -110,4 +110,3 @@ if __name__=='__main__':
     sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)
     lst = SyslogListener()
     lst.listen()
-    
